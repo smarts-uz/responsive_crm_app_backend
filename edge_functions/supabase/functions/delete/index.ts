@@ -2,51 +2,51 @@
 // https://deno.land/manual/getting_started/setup_your_environment
 // This enables autocomplete, go to definition, etc.
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {serve} from "https://deno.land/std@0.168.0/http/server.ts"
+import {createClient} from "https://esm.sh/@supabase/supabase-js@2";
 import {corsHeaders} from "../_shared/cors.ts";
 
 
 serve(async (req) => {
 
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', {headers: corsHeaders})
-  }
+    if (req.method === 'OPTIONS') {
+        return new Response('ok', {headers: corsHeaders})
+    }
 
-  try{
-    const supabaseClient = createClient(
-        'https://rftvbsvcljemoonofdhk.supabase.co',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmdHZic3ZjbGplbW9vbm9mZGhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTU5MTYzNDQsImV4cCI6MjAxMTQ5MjM0NH0.X-GtVHCkph5RGu_3nijIMSSe-bFX7YxgvxJ8TfqO5E8',
-        // Create client with AuthPage context of the user that called the function.
-        // This way your row-level-security (RLS) policies are applied.
-        {global: {headers: {Authorization: req.headers.get('Authorization')!}}}
-    )
+    try {
+        const supabaseClient = createClient(
+            'https://rftvbsvcljemoonofdhk.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmdHZic3ZjbGplbW9vbm9mZGhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTU5MTYzNDQsImV4cCI6MjAxMTQ5MjM0NH0.X-GtVHCkph5RGu_3nijIMSSe-bFX7YxgvxJ8TfqO5E8',
+            // Create client with AuthPage context of the user that called the function.
+            // This way your row-level-security (RLS) policies are applied.
+            {global: {headers: {Authorization: req.headers.get('Authorization')!}}}
+        )
 
-    const { id } = await req.json()
+        const url = new URL(req.url)
+        const id = url.searchParams.get('id')
+        const numbID = Number(id)
 
-    const {data, error} = await supabaseClient.from('drivers')
-        .delete()
-        .eq('id', id)
+        const {data, error} = await supabaseClient.from('drivers').delete().eq('id', numbID)
 
-    if (error) throw error
+        if (error) throw error
 
-    return new Response(JSON.stringify({data}), {
-      headers: {...corsHeaders, 'Content-Type': 'application/json'},
-      status: 200,
-    })
+        return new Response(JSON.stringify({data}), {
+            headers: {...corsHeaders, 'Content-Type': 'application/json'},
+            status: 200,
+        })
 
 
-  } catch (error) {
-    return new Response(JSON.stringify({error: error.message}), {
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmdHZic3ZjbGplbW9vbm9mZGhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTU5MTYzNDQsImV4cCI6MjAxMTQ5MjM0NH0.X-GtVHCkph5RGu_3nijIMSSe-bFX7YxgvxJ8TfqO5E8'
-      },
-      status: 400,
-    })
-  }
+    } catch (error) {
+        return new Response(JSON.stringify({error: error.message}), {
+            headers: {
+                ...corsHeaders,
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJmdHZic3ZjbGplbW9vbm9mZGhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTU5MTYzNDQsImV4cCI6MjAxMTQ5MjM0NH0.X-GtVHCkph5RGu_3nijIMSSe-bFX7YxgvxJ8TfqO5E8'
+            },
+            status: 400,
+        })
+    }
 
 }).then()
 
